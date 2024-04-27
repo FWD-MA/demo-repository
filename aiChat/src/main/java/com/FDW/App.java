@@ -72,49 +72,21 @@ public class App
 
     }
     public static void basicCall() throws ApiException, NoApiKeyException, IOException {
-        ImageSynthesis is = new ImageSynthesis();
         Scanner sc = new Scanner(System.in);
         System.out.println("You:请输入...");
         String input = sc.next();
+        ImageSynthesis is = new ImageSynthesis();
         ImageSynthesisParam param =
                 ImageSynthesisParam.builder()
-                        .model("stable-diffusion-xl")
+                        .model(ImageSynthesis.Models.WANX_V1)
                         .n(1)
                         .size("1024*1024")
                         .prompt(input)
-                        .negativePrompt("garfield").apiKey("sk-eb07a7232b0e4dbaa7d1f4ceec13965b")
+                        .apiKey("sk-eb07a7232b0e4dbaa7d1f4ceec13965b")
                         .build();
 
         ImageSynthesisResult result = is.call(param);
         System.out.println(result);
-        // save image to local files.
-        for(Map<String, String> item :result.getOutput().getResults()){
-            String paths = new URL(item.get("url")).getPath();
-            String[] parts = paths.split("/");
-            String fileName = parts[parts.length-1];
-            Request request = new Request.Builder()
-                    .url(item.get("url"))
-                    .build();
-
-            try (Response response = CLIENT.newCall(request).execute()) {
-                if (!response.isSuccessful()) {
-                    throw new IOException("Unexpected code " + response);
-                }
-
-                Path file = Paths.get(fileName);
-                Files.write(file, response.body().bytes());
-            }
-
-        }
-    }
-
-    public void fetchTask() throws ApiException, NoApiKeyException {
-        String taskId = "your task id";
-        ImageSynthesis is = new ImageSynthesis();
-        // If set DASHSCOPE_API_KEY environment variable, apiKey can null.
-        ImageSynthesisResult result = is.fetch(taskId, null);
-        System.out.println(result.getOutput());
-        System.out.println(result.getUsage());
     }
 
     public static void main( String[] args )
